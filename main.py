@@ -286,6 +286,7 @@ class BotCommunicationPlugin(Star):
             return
         
         message_str = event.message_str
+        forwarded = False
         
         if self.bot_forward_rules:
             for bot_name, rules in self.bot_forward_rules.items():
@@ -295,8 +296,11 @@ class BotCommunicationPlugin(Star):
                 forward_type, content = self._check_forward_condition(message_str, bot_name)
                 if forward_type != self.FORWARD_TYPE_NONE:
                     await self._process_forward(event, forward_type, content)
+                    forwarded = True
         
-        event.stop_event()
+        # 只在消息被转发时才停止事件传播
+        if forwarded:
+            event.stop_event()
     
     @filter.event_message_type(filter.EventMessageType.PRIVATE_MESSAGE)
     async def handle_private_message(self, event: AstrMessageEvent):
@@ -305,6 +309,7 @@ class BotCommunicationPlugin(Star):
             return
         
         message_str = event.message_str
+        forwarded = False
         
         if self.bot_forward_rules:
             for bot_name, rules in self.bot_forward_rules.items():
@@ -314,8 +319,11 @@ class BotCommunicationPlugin(Star):
                 forward_type, content = self._check_forward_condition(message_str, bot_name)
                 if forward_type != self.FORWARD_TYPE_NONE:
                     await self._process_forward(event, forward_type, content)
+                    forwarded = True
         
-        event.stop_event()
+        # 只在消息被转发时才停止事件传播
+        if forwarded:
+            event.stop_event()
     
     async def terminate(self):
         if self.bot_comm:
